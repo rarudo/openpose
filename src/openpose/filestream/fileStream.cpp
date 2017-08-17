@@ -6,6 +6,8 @@
 #include <openpose/filestream/jsonOfstream.hpp>
 #include <openpose/filestream/fileStream.hpp>
 
+#include "openpose/core/maximumCaffe.hpp"
+
 namespace op
 {
     // Private class (on *.cpp)
@@ -139,25 +141,14 @@ namespace op
         }
     }
 
-    void saveKeypointsJson(const Array<float>& keypoints, const std::string& keypointName, const std::string& fileName, const bool humanReadable)
-    {
-        try
-        {
-            saveKeypointsJson(std::vector<std::pair<Array<float>, std::string>>{std::make_pair(keypoints, keypointName)}, fileName, humanReadable);
-        }
-        catch (const std::exception& e)
-        {
-            error(e.what(), __LINE__, __FUNCTION__, __FILE__);
-        }
-    }
 
-    void saveKeypointsJson(const std::vector<std::pair<Array<float>, std::string>>& keypointVector, const std::string& fileName, const bool humanReadable)
-    {
-        try
-        {
+    
+
+    void saveKeypointsJson (const std::vector<std::pair<Array<float>, std::string>>&keypointVector, const std::string& fileName, const bool humanReadable) {
+        try {
             // Security checks
             for (const auto& keypointPair : keypointVector)
-                if (!keypointPair.first.empty() && keypointPair.first.getNumberDimensions() != 3 )
+                if (!keypointPair.first.empty() && keypointPair.first.getNumberDimensions() != 3)
                     error("keypointVector.getNumberDimensions() != 3.", __LINE__, __FUNCTION__, __FILE__);
             // Record frame on desired path
             JsonOfstream jsonOfstream{fileName, humanReadable};
@@ -171,37 +162,33 @@ namespace op
             jsonOfstream.arrayOpen();
             // Ger max numberPeople
             auto numberPeople = 0;
-            for (auto vectorIndex = 0 ; vectorIndex < keypointVector.size() ; vectorIndex++)
+            for (auto vectorIndex = 0; vectorIndex < keypointVector.size(); vectorIndex++)
                 numberPeople = fastMax(numberPeople, keypointVector[vectorIndex].first.getSize(0));
-            for (auto person = 0 ; person < numberPeople ; person++)
-            {
+            for (auto person = 0; person < numberPeople; person++) {
                 jsonOfstream.objectOpen();
-                for (auto vectorIndex = 0 ; vectorIndex < keypointVector.size() ; vectorIndex++)
-                {
+                for (auto vectorIndex = 0; vectorIndex < keypointVector.size(); vectorIndex++) {
                     const auto& keypoints = keypointVector[vectorIndex].first;
                     const auto& keypointName = keypointVector[vectorIndex].second;
                     const auto numberBodyParts = keypoints.getSize(1);
                     jsonOfstream.key(keypointName);
                     jsonOfstream.arrayOpen();
                     // Body parts
-                    for (auto bodyPart = 0 ; bodyPart < numberBodyParts ; bodyPart++)
-                    {
-                        const auto finalIndex = 3*(person*numberBodyParts + bodyPart);
+                    for (auto bodyPart = 0; bodyPart < numberBodyParts; bodyPart++) {
+                        const auto finalIndex = 3 * (person * numberBodyParts + bodyPart);
                         jsonOfstream.plainText(keypoints[finalIndex]);
                         jsonOfstream.comma();
-                        jsonOfstream.plainText(keypoints[finalIndex+1]);
+                        jsonOfstream.plainText(keypoints[finalIndex + 1]);
                         jsonOfstream.comma();
-                        jsonOfstream.plainText(keypoints[finalIndex+2]);
-                        if (bodyPart < numberBodyParts-1)
+                        jsonOfstream.plainText(keypoints[finalIndex + 2]);
+                        if (bodyPart < numberBodyParts - 1)
                             jsonOfstream.comma();
                     }
                     jsonOfstream.arrayClose();
-                    if (vectorIndex < keypointVector.size()-1)
+                    if (vectorIndex < keypointVector.size() - 1)
                         jsonOfstream.comma();
                 }
                 jsonOfstream.objectClose();
-                if (person < numberPeople-1)
-                {
+                if (person < numberPeople - 1) {
                     jsonOfstream.comma();
                     jsonOfstream.enter();
                 }
@@ -210,12 +197,13 @@ namespace op
             jsonOfstream.arrayClose();
             // Close object
             jsonOfstream.objectClose();
-        }
-        catch (const std::exception& e)
-        {
+            jsonOfstream.writeFile();
+            jsonOfstream.sendByUdp(8800, "192.168.128.28");
+        }catch (const std::exception& e) {
             error(e.what(), __LINE__, __FUNCTION__, __FILE__);
         }
     }
+
 
     void saveImage(const cv::Mat& cvMat, const std::string& fullFilePath, const std::vector<int>& openCvCompressionParams)
     {

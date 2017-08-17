@@ -6,6 +6,8 @@
 #include <openpose/core/common.hpp>
 #include <openpose/filestream/enumClasses.hpp>
 
+#include "jsonOfstream.hpp"
+
 namespace op
 {
     OP_API DataFormat stringToDataFormat(const std::string& dataFormat);
@@ -24,7 +26,7 @@ namespace op
 
     // It will save a bunch of Array<float> elements
     OP_API void saveKeypointsJson(const std::vector<std::pair<Array<float>, std::string>>& keypointVector, const std::string& fileName, const bool humanReadable);
-
+    
     // Save/load image
     OP_API void saveImage(const cv::Mat& cvMat, const std::string& fullFilePath, const std::vector<int>& openCvCompressionParams = {CV_IMWRITE_JPEG_QUALITY, 100, CV_IMWRITE_PNG_COMPRESSION, 9});
 

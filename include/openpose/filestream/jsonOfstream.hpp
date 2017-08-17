@@ -29,20 +29,22 @@ namespace op
         void arrayOpen();
 
         void arrayClose();
+        
+        void writeFile();
+        
+        void sendByUdp(unsigned short port, std::string ipAddr);
 
         void key(const std::string& string);
 
         template <typename T>
         inline void plainText(const T& value)
         {
-            mOfstream << value;
             sStream << value;
-
         }
 
         inline void comma()
         {
-            mOfstream << ",";
+            sStream << ",";
         }
 
         void enter();
@@ -51,8 +53,8 @@ namespace op
         const bool mHumanReadable;
         long long mBracesCounter;
         long long mBracketsCounter;
-        std::ofstream mOfstream;
         std::stringstream sStream;
+        std::ofstream mOfstream;
 
         DELETE_COPY(JsonOfstream);
     };
