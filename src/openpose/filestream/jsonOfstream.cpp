@@ -144,7 +144,7 @@ namespace op
         destSocket = socket(AF_INET, SOCK_DGRAM, 0);
 
         //送信
-        sendto(destSocket, toSendText.c_str(), strlen(toSendText.c_str()) + 1, 0, (const sockaddr*) &destSockAddr, sizeof (destSockAddr));
+        sendto(destSocket, toSendText.c_str(), toSendText.length(), 0, (const sockaddr*) &destSockAddr, sizeof (destSockAddr));
 
         //終了
         close(destSocket);

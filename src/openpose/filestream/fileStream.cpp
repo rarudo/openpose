@@ -142,8 +142,6 @@ namespace op
     }
 
 
-    
-
     void saveKeypointsJson (const std::vector<std::pair<Array<float>, std::string>>&keypointVector, const std::string& fileName, const bool humanReadable) {
         try {
             // Security checks
